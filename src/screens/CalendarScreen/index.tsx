@@ -1,18 +1,24 @@
 import Calendar from '@src/components/Calendar';
 import TimePicker from '@src/components/TimePicker';
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Text, SafeAreaView, StyleSheet} from 'react-native';
 
 function CalendarScreen() {
   return (
-    <View>
+    <SafeAreaView style={styles.safeArea}>
       <Text>Calendar screen</Text>
 
       <Calendar />
 
       <TimePicker />
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+});
 
 export default CalendarScreen;
