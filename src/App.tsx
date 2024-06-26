@@ -1,5 +1,5 @@
 import React from 'react';
-import CalendarScreen from './screens/CalendarScreen';
+import CalendarScreen from '@src/screens/CalendarScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {StyleSheet} from 'react-native';
 
