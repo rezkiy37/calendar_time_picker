@@ -11,6 +11,7 @@ import BottomSheet, {
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
 import {StyleSheet, Text} from 'react-native';
+import TimeSlider from '../TimeSlider';
 
 const snapPoints = ['50%', '75%'];
 
@@ -51,6 +52,10 @@ function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
       backdropComponent={renderBackdrop}>
       <BottomSheetView style={styles.contentContainer}>
         {date && <Text>Set availability on {date.toString()}</Text>}
+
+        <TimeSlider label="Start work at" />
+
+        <TimeSlider label="End work by" />
       </BottomSheetView>
     </BottomSheet>
   );
@@ -64,7 +69,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    alignItems: 'center',
   },
 });
 
