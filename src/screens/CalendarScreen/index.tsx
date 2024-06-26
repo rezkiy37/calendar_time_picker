@@ -1,14 +1,16 @@
 import Calendar from '@src/components/Calendar';
 import TimePicker, {type TimePickerRef} from '@src/components/TimePicker';
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {Text, SafeAreaView, StyleSheet} from 'react-native';
 
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 function CalendarScreen() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const timePickerRef = useRef<TimePickerRef>(null);
 
-  const openTimePicker = () => {
+  const openTimePicker = (date: Date) => {
+    setSelectedDate(date);
     timePickerRef.current?.open();
   };
 
@@ -20,7 +22,7 @@ function CalendarScreen() {
 
       <Text>Timezone: {timezone}</Text>
 
-      <TimePicker ref={timePickerRef} />
+      <TimePicker ref={timePickerRef} date={selectedDate} />
     </SafeAreaView>
   );
 }

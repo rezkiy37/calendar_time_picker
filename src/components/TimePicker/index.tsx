@@ -18,12 +18,12 @@ type TimePickerRef = {
   open: () => void;
 };
 
-function TimePicker(props: unknown, ref: ForwardedRef<TimePickerRef>) {
-  const bottomSheetRef = useRef<BottomSheet>(null);
+type TimePickerProps = {
+  date: Date | null;
+};
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
+function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const renderBackdrop = useCallback(
     (bottomSheetBackdropProps: BottomSheetBackdropProps) => (
@@ -48,10 +48,9 @@ function TimePicker(props: unknown, ref: ForwardedRef<TimePickerRef>) {
       index={-1}
       snapPoints={snapPoints}
       enablePanDownToClose
-      backdropComponent={renderBackdrop}
-      onChange={handleSheetChanges}>
+      backdropComponent={renderBackdrop}>
       <BottomSheetView style={styles.contentContainer}>
-        <Text>TimePicker</Text>
+        {date && <Text>Set availability on {date.toString()}</Text>}
       </BottomSheetView>
     </BottomSheet>
   );
