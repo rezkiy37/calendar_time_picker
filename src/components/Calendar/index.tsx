@@ -1,10 +1,23 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
+import {CalendarList} from 'react-native-calendars';
 
-function Calendar() {
+type CalendarProps = {
+  onDayPress: (date: Date) => void;
+};
+
+function Calendar({onDayPress}: CalendarProps) {
   return (
     <View>
-      <Text>Calendar</Text>
+      <CalendarList
+        scrollEnabled
+        showScrollIndicator={false}
+        pastScrollRange={0}
+        futureScrollRange={24}
+        onDayPress={day => {
+          onDayPress(new Date(day.timestamp));
+        }}
+      />
     </View>
   );
 }
