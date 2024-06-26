@@ -3,6 +3,8 @@ import TimePicker, {type TimePickerRef} from '@src/components/TimePicker';
 import React, {useRef} from 'react';
 import {Text, SafeAreaView, StyleSheet} from 'react-native';
 
+const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 function CalendarScreen() {
   const timePickerRef = useRef<TimePickerRef>(null);
 
@@ -15,6 +17,8 @@ function CalendarScreen() {
       <Text>Availability</Text>
 
       <Calendar onDayPress={openTimePicker} />
+
+      <Text>Timezone: {timezone}</Text>
 
       <TimePicker ref={timePickerRef} />
     </SafeAreaView>
