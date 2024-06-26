@@ -1,16 +1,22 @@
 import Calendar from '@src/components/Calendar';
-import TimePicker from '@src/components/TimePicker';
-import React from 'react';
+import TimePicker, {type TimePickerRef} from '@src/components/TimePicker';
+import React, {useRef} from 'react';
 import {Text, SafeAreaView, StyleSheet} from 'react-native';
 
 function CalendarScreen() {
+  const timePickerRef = useRef<TimePickerRef>(null);
+
+  const openTimePicker = () => {
+    timePickerRef.current?.open();
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text>Calendar screen</Text>
+      <Text>Availability</Text>
 
-      <Calendar />
+      <Calendar onDayPress={openTimePicker} />
 
-      <TimePicker />
+      <TimePicker ref={timePickerRef} />
     </SafeAreaView>
   );
 }
