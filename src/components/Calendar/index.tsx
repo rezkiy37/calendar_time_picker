@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {CalendarList} from 'react-native-calendars';
 
 type CalendarProps = {
@@ -8,7 +8,7 @@ type CalendarProps = {
 
 function Calendar({onDayPress}: CalendarProps) {
   return (
-    <View>
+    <View style={styles.container}>
       <CalendarList
         scrollEnabled
         showScrollIndicator={false}
@@ -21,5 +21,11 @@ function Calendar({onDayPress}: CalendarProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: '60%',
+  },
+});
 
 export default Calendar;
