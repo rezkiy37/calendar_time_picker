@@ -7,13 +7,15 @@ import React, {
 } from 'react';
 import BottomSheet, {
   BottomSheetBackdrop,
+  BottomSheetFooter,
   BottomSheetView,
   type BottomSheetBackdropProps,
+  type BottomSheetFooterProps,
 } from '@gorhom/bottom-sheet';
-import {StyleSheet, Text} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import TimeSlider from '../TimeSlider';
 
-const snapPoints = ['50%', '75%'];
+const snapPoints = ['50%'];
 
 type TimePickerRef = {
   open: () => void;
@@ -21,10 +23,22 @@ type TimePickerRef = {
 
 type TimePickerProps = {
   date: Date | null;
+  onSetTime: (start: string, end: string) => void;
 };
 
-function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
+function TimePicker(
+  {date, onSetTime}: TimePickerProps,
+  ref: ForwardedRef<TimePickerRef>,
+) {
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const formattedDate = date
+    ? new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+      }).format(date)
+    : '';
 
   const renderBackdrop = useCallback(
     (bottomSheetBackdropProps: BottomSheetBackdropProps) => (
@@ -37,6 +51,22 @@ function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
     [],
   );
 
+  const renderFooter = useCallback(
+    (bottomSheetFooterProps: BottomSheetFooterProps) => (
+      <BottomSheetFooter {...bottomSheetFooterProps} bottomInset={24}>
+        <View style={styles.footerContainer}>
+          <TouchableOpacity
+            style={styles.setTimeButton}
+            activeOpacity={0.7}
+            onPress={() => onSetTime('', '')}>
+            <Text style={styles.setTimeButtonText}>Set time</Text>
+          </TouchableOpacity>
+        </View>
+      </BottomSheetFooter>
+    ),
+    [onSetTime],
+  );
+
   useImperativeHandle(ref, () => ({
     open: () => {
       bottomSheetRef.current?.snapToIndex(0);
@@ -47,11 +77,26 @@ function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
     <BottomSheet
       ref={bottomSheetRef}
       index={-1}
+      backgroundStyle={styles.background}
       snapPoints={snapPoints}
       enablePanDownToClose
-      backdropComponent={renderBackdrop}>
+      handleStyle={styles.handle}
+      backdropComponent={renderBackdrop}
+      footerComponent={renderFooter}>
       <BottomSheetView style={styles.contentContainer}>
-        {date && <Text>Set availability on {date.toString()}</Text>}
+        <View style={styles.header}>
+          {!!formattedDate && (
+            <Text style={styles.title}>
+              Set availability on {formattedDate}
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            activeOpacity={0.7}
+            onPress={() => bottomSheetRef.current?.close()}
+          />
+        </View>
 
         <TimeSlider label="Start work at" />
 
@@ -62,13 +107,54 @@ function TimePicker({date}: TimePickerProps, ref: ForwardedRef<TimePickerRef>) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
     flex: 1,
-    padding: 24,
     backgroundColor: 'grey',
   },
-  contentContainer: {
-    flex: 1,
+  handle: {
+    borderTopWidth: 1,
+    borderColor: 'lightgray',
+    borderStyle: 'solid',
+    backgroundColor: 'grey',
+  },
+  background: {
+    backgroundColor: 'grey',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  title: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    width: 24,
+    height: 24,
+    backgroundColor: 'white',
+  },
+  footerContainer: {
+    padding: 16,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: 'lightgray',
+    borderStyle: 'solid',
+    backgroundColor: 'grey',
+  },
+  setTimeButton: {
+    width: '100%',
+    padding: 16,
+    alignItems: 'center',
+    borderRadius: 16,
+    backgroundColor: 'green',
+  },
+  setTimeButtonText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

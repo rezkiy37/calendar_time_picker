@@ -14,6 +14,12 @@ function CalendarScreen() {
     timePickerRef.current?.open();
   };
 
+  const setDateAndTime = (start: string, end: string) => {
+    console.log('selectedDate', selectedDate);
+    console.log('start:', start);
+    console.log('end:', end);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -26,7 +32,11 @@ function CalendarScreen() {
         <Text>{timezone}</Text>
       </View>
 
-      <TimePicker ref={timePickerRef} date={selectedDate} />
+      <TimePicker
+        ref={timePickerRef}
+        date={selectedDate}
+        onSetTime={setDateAndTime}
+      />
     </SafeAreaView>
   );
 }
