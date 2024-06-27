@@ -1,7 +1,7 @@
 import Calendar from '@src/components/Calendar';
 import TimePicker, {type TimePickerRef} from '@src/components/TimePicker';
 import React, {useRef, useState} from 'react';
-import {Text, SafeAreaView, StyleSheet} from 'react-native';
+import {Text, SafeAreaView, StyleSheet, View} from 'react-native';
 
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -16,11 +16,15 @@ function CalendarScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text>Availability</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Availability</Text>
+      </View>
 
-      <Calendar onDayPress={openTimePicker} />
+      <Calendar date={selectedDate} onDayPress={openTimePicker} />
 
-      <Text>Timezone: {timezone}</Text>
+      <View style={styles.timezoneContainer}>
+        <Text>{timezone}</Text>
+      </View>
 
       <TimePicker ref={timePickerRef} date={selectedDate} />
     </SafeAreaView>
@@ -30,6 +34,22 @@ function CalendarScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: 'black',
+  },
+  header: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  title: {
+    color: 'white',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  timezoneContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    backgroundColor: 'lightgray',
   },
 });
 
