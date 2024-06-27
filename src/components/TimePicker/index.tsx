@@ -98,9 +98,9 @@ function TimePicker(
           />
         </View>
 
-        <TimeSlider label="Start work at" />
+        <TimeSlider label="Start work at" period="am" />
 
-        <TimeSlider label="End work by" />
+        <TimeSlider label="End work by" period="pm" />
       </BottomSheetView>
     </BottomSheet>
   );
@@ -108,8 +108,7 @@ function TimePicker(
 
 const styles = StyleSheet.create({
   contentContainer: {
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    paddingBottom: 24,
     flex: 1,
     backgroundColor: 'grey',
   },
@@ -123,8 +122,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
   },
   header: {
+    paddingHorizontal: 16,
+    paddingBottom: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderColor: 'lightgray',
+    borderStyle: 'solid',
   },
   title: {
     color: 'white',
