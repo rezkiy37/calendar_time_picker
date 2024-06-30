@@ -8,6 +8,9 @@ type CalendarProps = {
   onDayPress: (date: Date) => void;
 };
 
+const formatDate = (date: Date) => date.toISOString().slice(0, 10); // YYYY-MM-DD
+
+const today = formatDate(new Date());
 const calendarHeight = 400;
 const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const theme: CalendarTheme = {
@@ -48,9 +51,8 @@ function Calendar({date, onDayPress}: CalendarProps) {
         calendarHeight={calendarHeight}
         pastScrollRange={0}
         futureScrollRange={24}
-        markedDates={
-          date ? {[date.toISOString().slice(0, 10)]: {selected: true}} : {}
-        }
+        minDate={today}
+        markedDates={date ? {[formatDate(date)]: {selected: true}} : {}}
         onDayPress={day => {
           onDayPress(new Date(day.timestamp));
         }}
