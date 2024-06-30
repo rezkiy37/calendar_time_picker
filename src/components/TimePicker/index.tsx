@@ -81,6 +81,7 @@ function TimePicker(
       snapPoints={snapPoints}
       enablePanDownToClose
       handleStyle={styles.handle}
+      enableContentPanningGesture={false}
       backdropComponent={renderBackdrop}
       footerComponent={renderFooter}>
       <BottomSheetView style={styles.contentContainer}>

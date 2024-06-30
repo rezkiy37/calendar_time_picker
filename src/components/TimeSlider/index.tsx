@@ -1,6 +1,17 @@
-import React from 'react';
-import {Text, View, StyleSheet, Dimensions} from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
+import React, {useState} from 'react';
+import {Text, View, StyleSheet} from 'react-native';
+import {
+  Directions,
+  Gesture,
+  GestureDetector,
+} from 'react-native-gesture-handler';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import TimeSlot from './TimeSlot';
+import {TIME_SLOT_BREAKPOINTS, TIME_SLOTS} from './const';
 
 type Period = 'am' | 'pm';
 
@@ -9,44 +20,79 @@ type TimeSliderProps = {
   period: Period;
 };
 
-const itemWidth = 100;
-const itemHeight = 60;
-
-const timeSlots: string[] = [];
-
-for (let hour = 0; hour < 12; hour++) {
-  for (let minute = 0; minute < 60; minute += 15) {
-    const formattedHour = hour.toString().padStart(2, '0');
-    const formattedMinute = minute.toString().padStart(2, '0');
-
-    timeSlots.push(`${formattedHour}:${formattedMinute}`);
-  }
-}
-const width = Dimensions.get('window').width;
-
 function TimeSlider({label, period}: TimeSliderProps) {
-  const renderItem = ({item}: {item: string}) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item}</Text>
-      <Text style={styles.itemPeriod}>{period}</Text>
-    </View>
-  );
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const translateX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
+  const startTranslateX = useSharedValue(0);
+  const scrollViewAnimatedStyles = useAnimatedStyle(() => ({
+    transform: [{translateX: translateX.value}],
+  }));
+
+  const fling = Gesture.Fling()
+    // eslint-disable-next-line no-bitwise
+    .direction(Directions.LEFT | Directions.RIGHT)
+    .onBegin(event => {
+      console.group('onBegin');
+      console.log('event', event);
+      console.groupEnd();
+
+      startTranslateX.value = event.x;
+    })
+    .onStart(event => {
+      console.group('onStart');
+      console.log('event', event);
+      console.groupEnd();
+
+      translateX.value = withTiming(
+        translateX.value + event.x - startTranslateX.value,
+        {duration: 100},
+      );
+    })
+    .onEnd(event => {
+      console.group('onEnd');
+      console.log('event', event);
+
+      let nextIndex;
+
+      if (event.x > startTranslateX.value) {
+        nextIndex = currentIndex - 1;
+      } else {
+        nextIndex = currentIndex + 1;
+      }
+
+      if (nextIndex < 0 || nextIndex >= TIME_SLOTS.length) {
+        nextIndex = currentIndex;
+      }
+
+      console.log('nextIndex', nextIndex);
+      console.groupEnd();
+
+      setCurrentIndex(nextIndex);
+      translateX.value = withTiming(TIME_SLOT_BREAKPOINTS[nextIndex], {
+        duration: 100,
+      });
+    })
+    .runOnJS(true);
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
 
-      <Carousel
-        loop={false}
-        width={width}
-        height={itemHeight}
-        autoPlay={false}
-        data={timeSlots}
-        defaultIndex={timeSlots.length / 2}
-        scrollAnimationDuration={300}
-        onSnapToItem={index => console.log('current index:', index)}
-        renderItem={renderItem}
-      />
+      <GestureDetector gesture={fling}>
+        <Animated.View
+          style={[styles.scrollViewContainer, scrollViewAnimatedStyles]}>
+          {TIME_SLOTS.map((timeSlot: string, index: number) => (
+            <TimeSlot
+              key={timeSlot}
+              selectedIndex={currentIndex}
+              index={index}
+              timeSlot={timeSlot}
+              period={period}
+            />
+          ))}
+        </Animated.View>
+      </GestureDetector>
     </View>
   );
 }
@@ -56,25 +102,14 @@ const styles = StyleSheet.create({
     height: 120,
     paddingVertical: 16,
   },
+  scrollViewContainer: {
+    width: '100%',
+    flexDirection: 'row',
+  },
   label: {
     marginBottom: 16,
     paddingHorizontal: 16,
     color: 'white',
-    fontSize: 16,
-  },
-  itemContainer: {
-    width: itemWidth,
-    height: itemHeight,
-    padding: 6,
-    alignItems: 'center',
-  },
-  itemText: {
-    color: 'green',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  itemPeriod: {
-    color: 'green',
     fontSize: 16,
   },
 });
