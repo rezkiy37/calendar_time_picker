@@ -20,6 +20,13 @@ for (let hour = 0; hour < 24; hour++) {
       time: `${formattedHour}:${formattedMinute}`,
       period: hour < 12 ? 'AM' : 'PM',
     });
+
+    if (hour === 23 && minute === 45) {
+      TIME_SLOTS.push({
+        time: '11:59',
+        period: 'PM',
+      });
+    }
   }
 }
 
