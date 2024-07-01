@@ -43,6 +43,7 @@ function TimeSlider({label, onTimeChange}: TimeSliderProps) {
     .minDistance(1)
     .maxPointers(1)
     .onBegin(event => {
+      cancelAnimation(translationX);
       startTranslateX.value = event.x;
     })
     .onUpdate(event => {
