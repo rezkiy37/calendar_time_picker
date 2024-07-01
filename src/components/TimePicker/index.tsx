@@ -14,10 +14,8 @@ import BottomSheet, {
   type BottomSheetFooterProps,
 } from '@gorhom/bottom-sheet';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import TimeSlider from '../TimeSlider';
+import TimeSlider, {type TimeSliderRef} from '../TimeSlider';
 import {type TimeSlot} from '../TimeSlider/const';
-
-const snapPoints = ['50%'];
 
 type TimePickerRef = {
   open: () => void;
@@ -28,6 +26,18 @@ type TimePickerProps = {
   onSetTime: (start: TimeSlot, end: TimeSlot) => void;
 };
 
+const snapPoints = ['50%'];
+
+const defaultStartTime: TimeSlot = {
+  time: '06:00',
+  period: 'AM',
+};
+
+const defaultEndTime: TimeSlot = {
+  time: '08:00',
+  period: 'PM',
+};
+
 function TimePicker(
   {date, onSetTime}: TimePickerProps,
   ref: ForwardedRef<TimePickerRef>,
@@ -35,6 +45,8 @@ function TimePicker(
   const [startTime, setStartTime] = useState<TimeSlot | null>(null);
   const [endTime, setEndTime] = useState<TimeSlot | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const startTimeSliderRef = useRef<TimeSliderRef>(null);
+  const endTimeSliderRef = useRef<TimeSliderRef>(null);
 
   const formattedDate = date
     ? new Intl.DateTimeFormat('en-US', {
@@ -56,25 +68,29 @@ function TimePicker(
   );
 
   const renderFooter = useCallback(
-    (bottomSheetFooterProps: BottomSheetFooterProps) => (
-      <BottomSheetFooter {...bottomSheetFooterProps} bottomInset={24}>
-        <View style={styles.footerContainer}>
-          <TouchableOpacity
-            style={styles.setTimeButton}
-            activeOpacity={0.7}
-            onPress={() => {
-              if (!startTime || !endTime) {
-                return;
-              }
+    (bottomSheetFooterProps: BottomSheetFooterProps) => {
+      const onPress = () => {
+        if (!startTime || !endTime) {
+          return;
+        }
 
-              onSetTime(startTime, endTime);
-              bottomSheetRef.current?.close();
-            }}>
-            <Text style={styles.setTimeButtonText}>Set time</Text>
-          </TouchableOpacity>
-        </View>
-      </BottomSheetFooter>
-    ),
+        onSetTime(startTime, endTime);
+        bottomSheetRef.current?.close();
+      };
+
+      return (
+        <BottomSheetFooter {...bottomSheetFooterProps} bottomInset={24}>
+          <View style={styles.footerContainer}>
+            <TouchableOpacity
+              style={styles.setTimeButton}
+              activeOpacity={0.7}
+              onPress={onPress}>
+              <Text style={styles.setTimeButtonText}>Set time</Text>
+            </TouchableOpacity>
+          </View>
+        </BottomSheetFooter>
+      );
+    },
     [startTime, endTime, onSetTime],
   );
 
@@ -94,7 +110,11 @@ function TimePicker(
       handleStyle={styles.handle}
       enableContentPanningGesture={false}
       backdropComponent={renderBackdrop}
-      footerComponent={renderFooter}>
+      footerComponent={renderFooter}
+      onClose={() => {
+        startTimeSliderRef.current?.reset();
+        endTimeSliderRef.current?.reset();
+      }}>
       <BottomSheetView style={styles.contentContainer}>
         <View style={styles.header}>
           {!!formattedDate && (
@@ -110,9 +130,19 @@ function TimePicker(
           />
         </View>
 
-        <TimeSlider label="Start work at" onTimeChange={setStartTime} />
+        <TimeSlider
+          ref={startTimeSliderRef}
+          label="Start work at"
+          defaultValue={defaultStartTime}
+          onTimeChange={setStartTime}
+        />
 
-        <TimeSlider label="End work by" onTimeChange={setEndTime} />
+        <TimeSlider
+          ref={endTimeSliderRef}
+          label="End work by"
+          defaultValue={defaultEndTime}
+          onTimeChange={setEndTime}
+        />
       </BottomSheetView>
     </BottomSheet>
   );

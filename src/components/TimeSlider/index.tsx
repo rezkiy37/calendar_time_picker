@@ -1,7 +1,16 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+  type ForwardedRef,
+} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
+  cancelAnimation,
   clamp,
   runOnJS,
   useAnimatedStyle,
@@ -17,8 +26,13 @@ import {
   type TimeSlot as TimeSlotType,
 } from './const';
 
+type TimeSliderRef = {
+  reset: () => void;
+};
+
 type TimeSliderProps = {
   label: string;
+  defaultValue: TimeSlotType;
   onTimeChange: (time: TimeSlotType) => void;
 };
 
@@ -30,8 +44,21 @@ const getClosestBreakpoint = (x: number): number => {
   );
 };
 
-function TimeSlider({label, onTimeChange}: TimeSliderProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+function TimeSlider(
+  {label, defaultValue, onTimeChange}: TimeSliderProps,
+  ref: ForwardedRef<TimeSliderRef>,
+) {
+  const defaultIndex = useMemo(
+    () =>
+      TIME_SLOTS.findIndex(
+        timeSlot =>
+          timeSlot.time === defaultValue.time &&
+          timeSlot.period === defaultValue.period,
+      ) || 0,
+    [defaultValue],
+  );
+
+  const [currentIndex, setCurrentIndex] = useState(defaultIndex);
 
   const translationX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
   const startTranslateX = useSharedValue(0);
@@ -91,6 +118,14 @@ function TimeSlider({label, onTimeChange}: TimeSliderProps) {
     onTimeChange(TIME_SLOTS[currentIndex]);
   }, [currentIndex, onTimeChange]);
 
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      cancelAnimation(translationX);
+      setCurrentIndex(defaultIndex);
+      translationX.value = TIME_SLOT_BREAKPOINTS[defaultIndex];
+    },
+  }));
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -131,4 +166,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TimeSlider;
+export type {TimeSliderRef};
+
+export default forwardRef(TimeSlider);
