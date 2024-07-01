@@ -1,5 +1,6 @@
 import Calendar from '@src/components/Calendar';
 import TimePicker, {type TimePickerRef} from '@src/components/TimePicker';
+import {type TimeSlot} from '@src/components/TimeSlider/const';
 import React, {useRef, useState} from 'react';
 import {Text, SafeAreaView, StyleSheet, View} from 'react-native';
 
@@ -14,10 +15,10 @@ function CalendarScreen() {
     timePickerRef.current?.open();
   };
 
-  const setDateAndTime = (start: string, end: string) => {
+  const setDateAndTime = (start: TimeSlot, end: TimeSlot) => {
     console.log('selectedDate', selectedDate?.toString());
-    console.log('start:', start);
-    console.log('end:', end);
+    console.log('start:', start.time, start.period);
+    console.log('end:', end.time, end.period);
   };
 
   return (

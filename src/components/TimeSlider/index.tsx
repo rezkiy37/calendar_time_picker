@@ -11,14 +11,15 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import TimeSlot from './TimeSlot';
-import {TIME_SLOT_BREAKPOINTS, TIME_SLOTS} from './const';
-
-type Period = 'am' | 'pm';
+import {
+  TIME_SLOT_BREAKPOINTS,
+  TIME_SLOTS,
+  type TimeSlot as TimeSlotType,
+} from './const';
 
 type TimeSliderProps = {
   label: string;
-  period: Period;
-  onTimeChange: (time: string) => void;
+  onTimeChange: (time: TimeSlotType) => void;
 };
 
 const getClosestBreakpoint = (x: number): number => {
@@ -29,7 +30,7 @@ const getClosestBreakpoint = (x: number): number => {
   );
 };
 
-function TimeSlider({label, period, onTimeChange}: TimeSliderProps) {
+function TimeSlider({label, onTimeChange}: TimeSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const translationX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
@@ -96,12 +97,12 @@ function TimeSlider({label, period, onTimeChange}: TimeSliderProps) {
       <GestureDetector gesture={pan}>
         <Animated.View
           style={[styles.scrollViewContainer, scrollViewAnimatedStyles]}>
-          {TIME_SLOTS.map((timeSlot: string, index: number) => (
+          {TIME_SLOTS.map(({time, period}, index: number) => (
             <TimeSlot
-              key={timeSlot}
+              key={index}
               selectedIndex={currentIndex}
               index={index}
-              timeSlot={timeSlot}
+              timeSlot={time}
               period={period}
               onPress={selectTimeSlot}
             />

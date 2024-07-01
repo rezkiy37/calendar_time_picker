@@ -15,6 +15,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import TimeSlider from '../TimeSlider';
+import {type TimeSlot} from '../TimeSlider/const';
 
 const snapPoints = ['50%'];
 
@@ -24,15 +25,15 @@ type TimePickerRef = {
 
 type TimePickerProps = {
   date: Date | null;
-  onSetTime: (start: string, end: string) => void;
+  onSetTime: (start: TimeSlot, end: TimeSlot) => void;
 };
 
 function TimePicker(
   {date, onSetTime}: TimePickerProps,
   ref: ForwardedRef<TimePickerRef>,
 ) {
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [startTime, setStartTime] = useState<TimeSlot | null>(null);
+  const [endTime, setEndTime] = useState<TimeSlot | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const formattedDate = date
@@ -62,6 +63,10 @@ function TimePicker(
             style={styles.setTimeButton}
             activeOpacity={0.7}
             onPress={() => {
+              if (!startTime || !endTime) {
+                return;
+              }
+
               onSetTime(startTime, endTime);
               bottomSheetRef.current?.close();
             }}>
@@ -105,13 +110,9 @@ function TimePicker(
           />
         </View>
 
-        <TimeSlider
-          label="Start work at"
-          period="am"
-          onTimeChange={setStartTime}
-        />
+        <TimeSlider label="Start work at" onTimeChange={setStartTime} />
 
-        <TimeSlider label="End work by" period="pm" onTimeChange={setEndTime} />
+        <TimeSlider label="End work by" onTimeChange={setEndTime} />
       </BottomSheetView>
     </BottomSheet>
   );
