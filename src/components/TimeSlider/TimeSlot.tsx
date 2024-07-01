@@ -28,12 +28,13 @@ function TimeSlot({
   );
 
   const itemColorAnimatedStyles = useAnimatedStyle(() => ({
-    color: withTiming(textColor.value, {duration: 100}),
+    color: withTiming(textColor.value, {duration: 300}),
   }));
 
   return (
     <TouchableOpacity
       style={styles.itemContainer}
+      activeOpacity={0.7}
       onPress={() => onPress(index)}>
       <Animated.Text style={[styles.itemText, itemColorAnimatedStyles]}>
         {timeSlot}

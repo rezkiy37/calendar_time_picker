@@ -67,7 +67,7 @@ function TimeSlider({label, onTimeChange}: TimeSliderProps) {
           }
 
           const closestBreakpoint = getClosestBreakpoint(translationX.value);
-          translationX.value = withTiming(closestBreakpoint, {duration: 100});
+          translationX.value = withTiming(closestBreakpoint, {duration: 300});
           const newIndex = TIME_SLOT_BREAKPOINTS.indexOf(closestBreakpoint);
 
           runOnJS(setCurrentIndex)(newIndex);
