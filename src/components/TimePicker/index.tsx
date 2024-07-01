@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   useRef,
+  useState,
   type ForwardedRef,
 } from 'react';
 import BottomSheet, {
@@ -30,6 +31,8 @@ function TimePicker(
   {date, onSetTime}: TimePickerProps,
   ref: ForwardedRef<TimePickerRef>,
 ) {
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const formattedDate = date
@@ -58,13 +61,16 @@ function TimePicker(
           <TouchableOpacity
             style={styles.setTimeButton}
             activeOpacity={0.7}
-            onPress={() => onSetTime('', '')}>
+            onPress={() => {
+              onSetTime(startTime, endTime);
+              bottomSheetRef.current?.close();
+            }}>
             <Text style={styles.setTimeButtonText}>Set time</Text>
           </TouchableOpacity>
         </View>
       </BottomSheetFooter>
     ),
-    [onSetTime],
+    [startTime, endTime, onSetTime],
   );
 
   useImperativeHandle(ref, () => ({
@@ -99,9 +105,13 @@ function TimePicker(
           />
         </View>
 
-        <TimeSlider label="Start work at" period="am" />
+        <TimeSlider
+          label="Start work at"
+          period="am"
+          onTimeChange={setStartTime}
+        />
 
-        <TimeSlider label="End work by" period="pm" />
+        <TimeSlider label="End work by" period="pm" onTimeChange={setEndTime} />
       </BottomSheetView>
     </BottomSheet>
   );

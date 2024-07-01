@@ -15,7 +15,7 @@ function CalendarScreen() {
   };
 
   const setDateAndTime = (start: string, end: string) => {
-    console.log('selectedDate', selectedDate);
+    console.log('selectedDate', selectedDate?.toString());
     console.log('start:', start);
     console.log('end:', end);
   };

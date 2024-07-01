@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
@@ -18,6 +18,7 @@ type Period = 'am' | 'pm';
 type TimeSliderProps = {
   label: string;
   period: Period;
+  onTimeChange: (time: string) => void;
 };
 
 const getClosestBreakpoint = (x: number): number => {
@@ -28,7 +29,7 @@ const getClosestBreakpoint = (x: number): number => {
   );
 };
 
-function TimeSlider({label, period}: TimeSliderProps) {
+function TimeSlider({label, period, onTimeChange}: TimeSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const translationX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
@@ -83,6 +84,10 @@ function TimeSlider({label, period}: TimeSliderProps) {
     },
     [translationX],
   );
+
+  useEffect(() => {
+    onTimeChange(TIME_SLOTS[currentIndex]);
+  }, [currentIndex, onTimeChange]);
 
   return (
     <View style={styles.container}>
