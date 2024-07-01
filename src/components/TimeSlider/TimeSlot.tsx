@@ -21,7 +21,7 @@ function TimeSlot({selectedIndex, index, timeSlot, period}: TimeSlotProps) {
   );
 
   const itemColorAnimatedStyles = useAnimatedStyle(() => ({
-    color: withTiming(textColor.value, {duration: 500}),
+    color: withTiming(textColor.value, {duration: 100}),
   }));
 
   return (

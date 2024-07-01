@@ -1,13 +1,12 @@
 import React, {useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
-import {
-  Directions,
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
+  clamp,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withDecay,
   withTiming,
 } from 'react-native-reanimated';
 import TimeSlot from './TimeSlot';
@@ -20,66 +19,64 @@ type TimeSliderProps = {
   period: Period;
 };
 
+const getClosestBreakpoint = (x: number): number => {
+  'worklet';
+
+  return TIME_SLOT_BREAKPOINTS.reduce((acc, currentValue) =>
+    Math.abs(currentValue - x) < Math.abs(acc - x) ? currentValue : acc,
+  );
+};
+
 function TimeSlider({label, period}: TimeSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const translateX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
+  const translationX = useSharedValue(TIME_SLOT_BREAKPOINTS[currentIndex]);
   const startTranslateX = useSharedValue(0);
   const scrollViewAnimatedStyles = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
+    transform: [{translateX: translationX.value}],
   }));
 
-  const fling = Gesture.Fling()
-    // eslint-disable-next-line no-bitwise
-    .direction(Directions.LEFT | Directions.RIGHT)
+  const pan = Gesture.Pan()
+    .minDistance(1)
+    .maxPointers(1)
     .onBegin(event => {
-      console.group('onBegin');
-      console.log('event', event);
-      console.groupEnd();
-
       startTranslateX.value = event.x;
     })
-    .onStart(event => {
-      console.group('onStart');
-      console.log('event', event);
-      console.groupEnd();
-
-      translateX.value = withTiming(
-        translateX.value + event.x - startTranslateX.value,
-        {duration: 100},
+    .onUpdate(event => {
+      translationX.value = clamp(
+        translationX.value + event.x - startTranslateX.value,
+        TIME_SLOT_BREAKPOINTS[TIME_SLOT_BREAKPOINTS.length - 1],
+        TIME_SLOT_BREAKPOINTS[0],
       );
     })
     .onEnd(event => {
-      console.group('onEnd');
-      console.log('event', event);
+      translationX.value = withDecay(
+        {
+          velocity: event.velocityX,
+          clamp: [
+            TIME_SLOT_BREAKPOINTS[TIME_SLOT_BREAKPOINTS.length - 1],
+            TIME_SLOT_BREAKPOINTS[0],
+          ],
+        },
+        finished => {
+          if (!finished) {
+            return;
+          }
 
-      let nextIndex;
+          const closestBreakpoint = getClosestBreakpoint(translationX.value);
+          translationX.value = withTiming(closestBreakpoint, {duration: 100});
+          const newIndex = TIME_SLOT_BREAKPOINTS.indexOf(closestBreakpoint);
 
-      if (event.x > startTranslateX.value) {
-        nextIndex = currentIndex - 1;
-      } else {
-        nextIndex = currentIndex + 1;
-      }
-
-      if (nextIndex < 0 || nextIndex >= TIME_SLOTS.length) {
-        nextIndex = currentIndex;
-      }
-
-      console.log('nextIndex', nextIndex);
-      console.groupEnd();
-
-      setCurrentIndex(nextIndex);
-      translateX.value = withTiming(TIME_SLOT_BREAKPOINTS[nextIndex], {
-        duration: 100,
-      });
-    })
-    .runOnJS(true);
+          runOnJS(setCurrentIndex)(newIndex);
+        },
+      );
+    });
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
 
-      <GestureDetector gesture={fling}>
+      <GestureDetector gesture={pan}>
         <Animated.View
           style={[styles.scrollViewContainer, scrollViewAnimatedStyles]}>
           {TIME_SLOTS.map((timeSlot: string, index: number) => (
