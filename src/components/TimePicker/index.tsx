@@ -1,6 +1,7 @@
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -38,12 +39,27 @@ const defaultEndTime: TimeSlot = {
   period: 'PM',
 };
 
+function getDateFromTime(date: Date, time: string, period: 'AM' | 'PM'): Date {
+  const currentDate = new Date(date);
+  let [hours, minutes] = time.split(':').map(Number);
+
+  if (hours === 12) {
+    hours = period === 'AM' ? 0 : 12;
+  } else if (period === 'PM') {
+    hours += 12;
+  }
+  currentDate.setHours(hours, minutes, 0, 0);
+
+  return currentDate;
+}
+
 function TimePicker(
   {date, onSetTime}: TimePickerProps,
   ref: ForwardedRef<TimePickerRef>,
 ) {
   const [startTime, setStartTime] = useState<TimeSlot | null>(null);
   const [endTime, setEndTime] = useState<TimeSlot | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const startTimeSliderRef = useRef<TimeSliderRef>(null);
   const endTimeSliderRef = useRef<TimeSliderRef>(null);
@@ -94,6 +110,25 @@ function TimePicker(
     [startTime, endTime, onSetTime],
   );
 
+  useEffect(() => {
+    if (!date || !startTime || !endTime) {
+      return;
+    }
+
+    const startTimeDate = getDateFromTime(
+      date,
+      startTime?.time,
+      startTime?.period,
+    );
+    const endTimeDate = getDateFromTime(date, endTime?.time, endTime?.period);
+
+    if (startTimeDate >= endTimeDate) {
+      setErrorMessage("Select an end time that's later than your start time.");
+    } else {
+      setErrorMessage(null);
+    }
+  }, [startTime, endTime, date]);
+
   useImperativeHandle(ref, () => ({
     open: () => {
       bottomSheetRef.current?.snapToIndex(0);
@@ -143,6 +178,10 @@ function TimePicker(
           defaultValue={defaultEndTime}
           onTimeChange={setEndTime}
         />
+
+        {!!errorMessage && (
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
+        )}
       </BottomSheetView>
     </BottomSheet>
   );
@@ -201,6 +240,11 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorMessage: {
+    paddingHorizontal: 16,
+    color: 'red',
+    fontSize: 18,
   },
 });
 

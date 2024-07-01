@@ -2,7 +2,7 @@ import {Dimensions} from 'react-native';
 
 type TimeSlot = {
   time: string;
-  period: string;
+  period: 'AM' | 'PM';
 };
 
 const {width: SCREEN_WIDTH} = Dimensions.get('screen');
