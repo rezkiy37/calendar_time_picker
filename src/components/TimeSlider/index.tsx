@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
@@ -7,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDecay,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import TimeSlot from './TimeSlot';
@@ -72,6 +73,17 @@ function TimeSlider({label, period}: TimeSliderProps) {
       );
     });
 
+  const selectTimeSlot = useCallback(
+    (index: number) => {
+      setCurrentIndex(index);
+
+      translationX.value = withSpring(TIME_SLOT_BREAKPOINTS[index], {
+        duration: 1000,
+      });
+    },
+    [translationX],
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -86,6 +98,7 @@ function TimeSlider({label, period}: TimeSliderProps) {
               index={index}
               timeSlot={timeSlot}
               period={period}
+              onPress={selectTimeSlot}
             />
           ))}
         </Animated.View>

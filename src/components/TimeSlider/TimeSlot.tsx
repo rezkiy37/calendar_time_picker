@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useDerivedValue,
@@ -12,9 +12,16 @@ type TimeSlotProps = {
   index: number;
   timeSlot: string;
   period: string;
+  onPress: (index: number) => void;
 };
 
-function TimeSlot({selectedIndex, index, timeSlot, period}: TimeSlotProps) {
+function TimeSlot({
+  selectedIndex,
+  index,
+  timeSlot,
+  period,
+  onPress,
+}: TimeSlotProps) {
   const textColor = useDerivedValue(
     () => (selectedIndex === index ? 'green' : 'lightgray'),
     [selectedIndex],
@@ -25,7 +32,9 @@ function TimeSlot({selectedIndex, index, timeSlot, period}: TimeSlotProps) {
   }));
 
   return (
-    <View style={styles.itemContainer}>
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => onPress(index)}>
       <Animated.Text style={[styles.itemText, itemColorAnimatedStyles]}>
         {timeSlot}
       </Animated.Text>
@@ -33,7 +42,7 @@ function TimeSlot({selectedIndex, index, timeSlot, period}: TimeSlotProps) {
       <Animated.Text style={[styles.itemPeriod, itemColorAnimatedStyles]}>
         {period}
       </Animated.Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
